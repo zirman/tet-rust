@@ -56,11 +56,11 @@ fn is_clipped<S: Scalar>(t: &Tri4<S>) -> bool {
 
 pub fn is_clipped_2<S: Scalar>(t: &Vec<V4<S>>) -> bool {
     t.iter().all(|i| S::lte(i.x, S::neg(S::ONE))) ||
-    t.iter().all(|i| S::gte(i.x, S::ONE)) ||
-    t.iter().all(|i| S::lte(i.y, S::neg(S::ONE))) ||
-    t.iter().all(|i| S::gte(i.y, S::ONE)) ||
-    t.iter().all(|i| S::lte(i.z, S::neg(S::ONE))) ||
-    t.iter().all(|i| S::gte(i.z, S::ONE))
+        t.iter().all(|i| S::gte(i.x, S::ONE)) ||
+        t.iter().all(|i| S::lte(i.y, S::neg(S::ONE))) ||
+        t.iter().all(|i| S::gte(i.y, S::ONE)) ||
+        t.iter().all(|i| S::lte(i.z, S::neg(S::ONE))) ||
+        t.iter().all(|i| S::gte(i.z, S::ONE))
 }
 
 fn to_draw_coordinates<S: Scalar>(m: &M4<S>, t: Tri4<S>) -> Tri2<S> {
@@ -120,9 +120,7 @@ fn parse_a<'a>(source: &'a [u8]) -> Result<((), &'a [u8]), &'a [u8]> {
 //     ()
 // }
 
-fn foo() {
-
-}
+fn foo() {}
 
 // fn draw<S: Scalar>(d: &Tri2<S>) {
 //     moveTo(S::f32(d[0].x), S::f32(d[0].y));

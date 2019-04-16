@@ -1,125 +1,141 @@
-use super::Scalar;
-
-#[derive(Copy, Clone, Debug)]
-pub struct V2<S: Scalar> {
-    pub x: S,
-    pub y: S,
+pub struct V2 {
+    arr: [f32; 2],
 }
 
-impl<S: Scalar> V2<S> {
-    pub fn new(x: S, y: S) -> Self {
-        Self { x: x, y: y }
+impl V2 {
+    pub fn new(x: f32, y: f32) -> Self {
+        V2 { arr: [x, y] }
     }
-    pub fn dot(lhs: &Self, rhs: &Self) -> S {
-        S::add(S::mul(lhs.x, rhs.x), S::mul(lhs.y, rhs.y))
+    pub fn x(&self) -> f32 {
+        self.arr[0]
     }
-    pub fn neg(v: &Self) -> Self {
-        Self::new(S::neg(v.x), S::neg(v.y))
+    pub fn y(&self) -> f32 {
+        self.arr[1]
     }
-    pub fn add(lhs: &Self, rhs: &Self) -> Self {
-        Self::new(S::add(lhs.x, rhs.x), S::add(lhs.y, rhs.y))
+    pub fn dot(&self, rhs: &Self) -> f32 {
+        self.x() * rhs.x() + self.y() * rhs.y()
     }
-    pub fn sub(lhs: &Self, rhs: &Self) -> Self {
-        Self::new(S::sub(lhs.x, rhs.x), S::sub(lhs.y, rhs.y))
+    pub fn neg(&self) -> Self {
+        V2::new(-self.x(), -self.y())
     }
-    pub fn mul(v: &Self, s: S) -> Self {
-        Self::new(S::mul(v.x, s), S::mul(v.y, s))
+    pub fn add(&self, rhs: &Self) -> Self {
+        V2::new(self.x() + rhs.x(), self.y() + rhs.y())
     }
-    pub fn sqr_len(v: &Self) -> S {
-        Self::dot(v, v)
+    pub fn sub(&self, rhs: &Self) -> Self {
+        V2::new(self.x() - rhs.x(), self.y() - rhs.y())
+    }
+    pub fn mul(&self, s: f32) -> Self {
+        V2::new(self.x() * s, self.y() * s)
+    }
+    pub fn sqrd_len(&self) -> f32 {
+        self.dot(self)
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct V3<S> {
-    pub x: S,
-    pub y: S,
-    pub z: S,
+pub struct V3 {
+    arr: [f32; 3],
 }
 
-impl<S: Scalar> V3<S> {
-    pub fn new(x: S, y: S, z: S) -> Self {
-        Self { x: x, y: y, z: z }
+impl V3 {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        V3 { arr: [x, y, z] }
     }
-    pub fn dot(lhs: &Self, rhs: &Self) -> S {
-        S::add(S::add(S::mul(lhs.x, rhs.x), S::mul(lhs.y, rhs.y)), S::mul(lhs.z, rhs.z))
+    pub fn x(&self) -> f32 {
+        self.arr[0]
     }
-    pub fn neg(v: &Self) -> Self {
-        Self::new(S::neg(v.x), S::neg(v.y), S::neg(v.z))
+    pub fn y(&self) -> f32 {
+        self.arr[1]
     }
-    pub fn add(lhs: &Self, rhs: &Self) -> Self {
-        Self::new(S::add(lhs.x, rhs.x), S::add(lhs.y, rhs.y), S::add(lhs.z, rhs.z))
+    pub fn z(&self) -> f32 {
+        self.arr[2]
     }
-    pub fn sub(lhs: &Self, rhs: &Self) -> Self {
-        Self::new(S::sub(lhs.x, rhs.x), S::sub(lhs.y, rhs.y), S::sub(lhs.z, rhs.z))
+    pub fn dot(&self, rhs: &Self) -> f32 {
+        self.x() * self.x() + self.y() * rhs.y() + self.z() * rhs.z()
     }
-    pub fn mul(v: &Self, s: S) -> Self {
-        Self::new(S::mul(v.x, s), S::mul(v.y, s), S::mul(v.z, s))
+    pub fn neg(&self) -> Self {
+        V3::new(-self.x(), -self.y(), -self.z())
     }
-    pub fn sqr_len(v: &Self) -> S {
-        Self::dot(v, v)
+    pub fn add(&self, rhs: &Self) -> Self {
+        V3::new(self.x() + rhs.x(), self.y() + rhs.y(), self.z() + rhs.z())
     }
-    pub fn cros(lhs: &Self, rhs: &Self) -> Self {
-        Self::new(
-            S::sub(S::mul(lhs.y, rhs.z), S::mul(rhs.y, lhs.z)),
-            S::sub(S::mul(lhs.z, rhs.x), S::mul(rhs.z, lhs.x)),
-            S::sub(S::mul(lhs.x, rhs.y), S::mul(rhs.x, lhs.y)),
+    pub fn sub(&self, rhs: &Self) -> Self {
+        V3::new(self.x() - rhs.x(), self.y() - rhs.y(), self.z() - rhs.z())
+    }
+    pub fn mul(&self, s: f32) -> Self {
+        V3::new(self.x() * s, self.y() * s, self.z() * s)
+    }
+    pub fn sqrd_len(&self) -> f32 {
+        self.dot(self)
+    }
+    pub fn cross(&self, rhs: &Self) -> Self {
+        V3::new(
+            self.y() * rhs.z() - rhs.y() * self.z(),
+            self.z() * rhs.x() - rhs.z() * self.x(),
+            self.x() * rhs.y() - rhs.x() * self.y(),
         )
     }
-    pub fn to_v4(v: &Self) -> V4<S> {
-        V4::new(v.x, v.y, v.z, S::ONE)
+    pub fn to_v4(&self) -> V4 {
+        V4::new(self.x(), self.y(), self.z(), 1.0)
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct V4<S> {
-    pub x: S,
-    pub y: S,
-    pub z: S,
-    pub w: S,
+pub struct V4 {
+    arr: [f32; 4],
 }
 
-impl<S: Scalar> V4<S> {
-    pub fn new(x: S, y: S, z: S, w: S) -> Self {
-        Self {
-            x: x,
-            y: y,
-            z: z,
-            w: w,
-        }
+impl V4 {
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+        V4 { arr: [x, y, z, w] }
     }
-    pub fn dot(lhs: &Self, rhs: &Self) -> S {
-        S::add(S::add(S::add(S::mul(lhs.x, rhs.x), S::mul(lhs.y, rhs.y)), S::mul(lhs.z, rhs.z)), S::mul(lhs.w, rhs.w))
+    pub fn x(&self) -> f32 {
+        self.arr[0]
     }
-    pub fn neg(v: &Self) -> Self {
-        Self::new(S::neg(v.x), S::neg(v.y), S::neg(v.z), S::neg(v.w))
+    pub fn y(&self) -> f32 {
+        self.arr[1]
     }
-    pub fn add(lhs: &Self, rhs: &Self) -> Self {
-        Self::new(
-            S::add(lhs.x, rhs.x),
-            S::add(lhs.y, rhs.y),
-            S::add(lhs.z, rhs.z),
-            S::add(lhs.w, rhs.w),
+    pub fn z(&self) -> f32 {
+        self.arr[2]
+    }
+    pub fn w(&self) -> f32 {
+        self.arr[3]
+    }
+    pub fn dot(&self, rhs: &Self) -> f32 {
+        self.x() * rhs.x() + self.y() * rhs.y() + self.z() * rhs.z() + self.w() * rhs.w()
+    }
+    pub fn neg(&self) -> Self {
+        V4::new(-self.x(), -self.y(), -self.z(), -self.w())
+    }
+    pub fn add(&self, rhs: &Self) -> Self {
+        V4::new(
+            self.x() + rhs.x(),
+            self.y() + rhs.y(),
+            self.z() + rhs.z(),
+            self.w() + rhs.w(),
         )
     }
-    pub fn sub(lhs: &Self, rhs: &Self) -> Self {
-        Self::new(
-            S::sub(lhs.x, rhs.x),
-            S::sub(lhs.y, rhs.y),
-            S::sub(lhs.z, rhs.z),
-            S::sub(lhs.w, rhs.w),
+    pub fn sub(&self, rhs: &Self) -> Self {
+        V4::new(
+            self.x() - rhs.x(),
+            self.y() - rhs.y(),
+            self.z() - rhs.z(),
+            self.w() - rhs.w(),
         )
     }
-    pub fn mul(v: &Self, s: S) -> Self {
-        Self::new(S::mul(v.x, s), S::mul(v.y, s), S::mul(v.z, s), S::mul(v.w, s))
+    pub fn mul(&self, s: f32) -> Self {
+        V4::new(self.x() * s, self.y() * s, self.z() * s, self.w() * s)
     }
-    pub fn sqr_len(v: &Self) -> S {
-        Self::dot(v, v)
+    pub fn sqrd_len(&self) -> f32 {
+        self.dot(self)
     }
-    pub fn to_v2(v: &Self) -> V2<S> {
-        V2::new(S::div(v.x, v.w), S::div(v.y, v.w))
+    pub fn to_v2(&self) -> V2 {
+        V2::new(self.x() / self.w(), self.y() / self.w())
     }
-    pub fn norm(v: &Self) -> Self {
-        Self::new(S::div(v.x, v.w), S::div(v.y, v.w), S::div(v.z, v.w), S::ONE)
+    pub fn norm(&self) -> Self {
+        V4::new(
+            self.x() / self.w(),
+            self.y() / self.w(),
+            self.y() / self.w(),
+            1.0,
+        )
     }
 }

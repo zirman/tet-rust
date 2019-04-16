@@ -1,48 +1,66 @@
-use super::{M4, Scalar, V3};
+use super::{M4, V3};
 
-#[derive(Clone, Debug)]
-pub struct Quaternion<S: Scalar> {
-    pub w: S,
-    pub x: S,
-    pub y: S,
-    pub z: S,
+pub struct Quaternion {
+    arr: [f32; 4],
 }
 
-impl<S: Scalar> Quaternion<S> {
+impl Quaternion {
+    pub fn x(&self) -> f32 {
+        self.arr[0]
+    }
+    pub fn y(&self) -> f32 {
+        self.arr[1]
+    }
+    pub fn z(&self) -> f32 {
+        self.arr[2]
+    }
+    pub fn w(&self) -> f32 {
+        self.arr[3]
+    }
     pub fn identity() -> Self {
         Quaternion {
-            w: S::ONE,
-            x: S::ZERO,
-            y: S::ZERO,
-            z: S::ZERO,
+            arr: [0.0, 0.0, 0.0, 1.0],
         }
     }
-    pub fn rotation(axis: &V3<S>, angle: S) -> Self {
+    pub fn rotation(axis: &V3, angle: f32) -> Self {
         Quaternion {
-            w: S::cos(S::div(angle, S::TWO)),
-            x: S::mul(axis.x, S::sin(S::div(angle, S::TWO))),
-            y: S::mul(axis.y, S::sin(S::div(angle, S::TWO))),
-            z: S::mul(axis.z, S::sin(S::div(angle, S::TWO))),
+            arr: [
+                axis.x() * (angle * 0.5).sin(),
+                axis.y() * (angle * 0.5).sin(),
+                axis.z() * (angle * 0.5).sin(),
+                (angle * 0.5).cos(),
+            ],
         }
     }
-    pub fn to_matrix(&self) -> M4<S> {
+    pub fn to_matrix(&self) -> M4 {
+        let xx = self.x() * self.x();
+        let yy = self.y() * self.y();
+        let zz = self.z() * self.z();
+        let ww = self.w() * self.w();
+        let xy = self.x() * self.y();
+        let yz = self.y() * self.z();
+        let zw = self.z() * self.w();
+        let xw = self.x() * self.w();
+        let xz = self.x() * self.z();
+        let yw = self.y() * self.w();
+
         M4::new(
-            S::sub(S::sub(S::add(S::mul(self.w, self.w), S::mul(self.x, self.x)), S::mul(self.y, self.y)), S::mul(self.z, self.z)),
-            S::sub(S::mul(S::mul(S::TWO, self.x), self.y), S::mul(S::mul(S::TWO, self.w), self.z)),
-            S::add(S::mul(S::mul(S::TWO, self.x), self.z), S::mul(S::mul(S::TWO, self.w), self.y)),
-            S::ZERO,
-            S::add(S::mul(S::mul(S::TWO, self.x), self.y), S::mul(S::mul(S::TWO, self.w), self.z)),
-            S::sub(S::add(S::sub(S::mul(self.w, self.w), S::mul(self.x, self.x)), S::mul(self.y, self.y)), S::mul(self.z, self.z)),
-            S::add(S::mul(S::mul(S::TWO, self.y), self.z), S::mul(S::mul(S::TWO, self.w), self.x)),
-            S::ZERO,
-            S::sub(S::mul(S::mul(S::TWO, self.x), self.z), S::mul(S::mul(S::TWO, self.w), self.y)),
-            S::sub(S::mul(S::mul(S::TWO, self.y), self.z), S::mul(S::mul(S::TWO, self.w), self.x)),
-            S::add(S::sub(S::sub(S::mul(self.w, self.w), S::mul(self.x, self.x)), S::mul(self.y, self.y)), S::mul(self.z, self.z)),
-            S::ZERO,
-            S::ZERO,
-            S::ZERO,
-            S::ZERO,
-            S::ONE,
+            xx + yy + zz + ww,
+            2.0 * (xy - zw),
+            2.0 * (xz + yw),
+            0.0,
+            2.0 * (xy + zw),
+            ww - xx + yy - zz,
+            2.0 * (yz + xw),
+            0.0,
+            2.0 * (xz - yw),
+            2.0 * (yz - xw),
+            ww - xx - yy + zz,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
         )
     }
 }
